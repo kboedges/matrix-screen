@@ -1,99 +1,112 @@
-<!-- AI generated code from prompt -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Matrix Effect</title>
+  <title>Matrix CRT Effect</title>
   <style>
-    /* Remove default margin/padding, set background to black and color to green */
+    /* Reset margin/padding */
     html, body {
       margin: 0;
       padding: 0;
-      width: 100%;
-      height: 100%;
-      background: black;
-      overflow: hidden; /* Hide scrollbars to keep the illusion clean */
-      font-family: monospace; /* A more 'hacker' feel */
-      color: limegreen;
+      overflow: hidden; /* Hide scrollbars to mimic a "full-screen" effect */
+      background-color: #000; /* Black background */
     }
 
-    /* Make the canvas fill the entire screen */
-    #matrix {
+    /* Make the canvas fill the browser window */
+    #matrixCanvas {
       display: block;
-      width: 100%;
-      height: 100%;
+      width: 100vw;
+      height: 100vh;
     }
 
+    /* Optional: If you want a subtle "screen lines" effect, you can add:
+       background: repeating-linear-gradient(
+         to bottom,
+         rgba(0,0,0,0) 0px,
+         rgba(0,255,0,0.02) 2px,
+         rgba(0,0,0,0) 4px
+       );
+       or some variation of that pattern. 
+       You can experiment with the blend mode, opacity, or repeating pattern
+       to emulate a CRT horizontal-line effect. */
   </style>
 </head>
 <body>
-  <canvas id="matrix"></canvas>
+  <!-- Canvas for drawing the Matrix effect -->
+  <canvas id="matrixCanvas"></canvas>
 
   <script>
-    // Get the canvas and its context
-    const canvas = document.getElementById("matrix");
-    const ctx = canvas.getContext("2d");
+    // Reference the canvas and create a 2D context
+    const canvas = document.getElementById('matrixCanvas');
+    const ctx = canvas.getContext('2d');
 
-    // Set canvas size to browser window size
+    // Make canvas full screen
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    // Characters that will appear in the rain
-    const matrixChars = "アァカサタナハマヤラワンABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%";
-    const charsArray = matrixChars.split("");
+    // A collection of characters that somewhat resemble the movie's style
+    // (including some Katakana symbols commonly associated with the Matrix)
+    const matrixChars = 
+      'アィイゥエォカキクケコシスセソタチツテト' +
+      'ナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン' +
+      '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ';
 
-    const fontSize = 16;  // Font size in px
-    const columns = canvas.width / fontSize; // Number of columns for the rain
-    // An array of 'y' positions. One value for each column
-    let drops = [];
+    // Convert the string into an array of single characters
+    const characters = matrixChars.split('');
 
-    // Initialize y positions for each column
+    // Set the font size (larger or smaller for effect)
+    const fontSize = 20;
+    const columns = canvas.width / fontSize; // Number of columns for the drops
+    
+    // An array of drops - one per column
+    const drops = [];
+
+    // Initialize drops
     for (let x = 0; x < columns; x++) {
-      drops[x] = Math.random() * -100;  // Start at random y positions above the screen
+      drops[x] = Math.random() * (-100); 
+      /* 
+        Start at a random negative y position so that columns don't all 
+        start dropping from the top edge simultaneously. 
+      */
     }
 
-    function draw() {
-      // Black background with slight opacity for trailing effect
-      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+    // Set up the drawing loop
+    function drawMatrix() {
+      // Semi-transparent black background to slowly fade older characters
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      // Set the text color to a bright green
-      ctx.fillStyle = "#0F0";
+      // Set the text style
+      ctx.fillStyle = '#0F0'; // Green
       ctx.font = fontSize + "px monospace";
+      ctx.shadowColor = '#00FF00';
 
-      // Loop over the drops array
+      // Loop over the columns
       for (let i = 0; i < drops.length; i++) {
-        // Pick a random character from the array
-        const text = charsArray[Math.floor(Math.random() * charsArray.length)];
-        // x coordinate of the text is i * fontSize, y coordinate is drops[i] * fontSize
+        // Pick a random character
+        const text = characters[Math.floor(Math.random() * characters.length)];
+        // x coordinate of the text, i * fontSize
+        // y coordinate is drops[i] * fontSize
         ctx.fillText(text, i * fontSize, drops[i] * fontSize);
 
-        // Send the drop back to the top randomly after it has crossed the screen
-        // Adding a random offset for a more natural effect
-        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+        // Send the drop "down" the canvas
+        drops[i]++;
+
+        // If a drop goes off-screen, reset it to the top
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.98) {
           drops[i] = 0;
         }
-
-        // Increment y coordinate of the drop
-        drops[i]++;
       }
     }
 
-    // Draw the animation at ~60 frames per second
-    setInterval(draw, 33);
-
-    // Update canvas size on window resize, re-initiate drops
-    window.addEventListener("resize", () => {
+    // Update the canvas size if the window is resized
+    window.addEventListener('resize', () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      
-      // Update the number of columns (based on new width)
-      const newColumns = canvas.width / fontSize;
-      drops = [];
-      for (let x = 0; x < newColumns; x++) {
-        drops[x] = Math.random() * -100;
-      }
     });
+
+    // Draw the animation at ~30-40 FPS
+    setInterval(drawMatrix, 50);
   </script>
 </body>
 </html>
