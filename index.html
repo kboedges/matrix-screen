@@ -1,0 +1,99 @@
+<!-- AI generated code from prompt -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Matrix Effect</title>
+  <style>
+    /* Remove default margin/padding, set background to black and color to green */
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      overflow: hidden; /* Hide scrollbars to keep the illusion clean */
+      font-family: monospace; /* A more 'hacker' feel */
+      color: limegreen;
+    }
+
+    /* Make the canvas fill the entire screen */
+    #matrix {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+
+  </style>
+</head>
+<body>
+  <canvas id="matrix"></canvas>
+
+  <script>
+    // Get the canvas and its context
+    const canvas = document.getElementById("matrix");
+    const ctx = canvas.getContext("2d");
+
+    // Set canvas size to browser window size
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Characters that will appear in the rain
+    const matrixChars = "アァカサタナハマヤラワンABCDEFGHIJKLMNOPQRSTUVWXYZ123456789@#$%^&*()*&^%";
+    const charsArray = matrixChars.split("");
+
+    const fontSize = 16;  // Font size in px
+    const columns = canvas.width / fontSize; // Number of columns for the rain
+    // An array of 'y' positions. One value for each column
+    let drops = [];
+
+    // Initialize y positions for each column
+    for (let x = 0; x < columns; x++) {
+      drops[x] = Math.random() * -100;  // Start at random y positions above the screen
+    }
+
+    function draw() {
+      // Black background with slight opacity for trailing effect
+      ctx.fillStyle = "rgba(0, 0, 0, 0.05)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Set the text color to a bright green
+      ctx.fillStyle = "#0F0";
+      ctx.font = fontSize + "px monospace";
+
+      // Loop over the drops array
+      for (let i = 0; i < drops.length; i++) {
+        // Pick a random character from the array
+        const text = charsArray[Math.floor(Math.random() * charsArray.length)];
+        // x coordinate of the text is i * fontSize, y coordinate is drops[i] * fontSize
+        ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+
+        // Send the drop back to the top randomly after it has crossed the screen
+        // Adding a random offset for a more natural effect
+        if (drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+          drops[i] = 0;
+        }
+
+        // Increment y coordinate of the drop
+        drops[i]++;
+      }
+    }
+
+    // Draw the animation at ~60 frames per second
+    setInterval(draw, 33);
+
+    // Update canvas size on window resize, re-initiate drops
+    window.addEventListener("resize", () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      
+      // Update the number of columns (based on new width)
+      const newColumns = canvas.width / fontSize;
+      drops = [];
+      for (let x = 0; x < newColumns; x++) {
+        drops[x] = Math.random() * -100;
+      }
+    });
+  </script>
+</body>
+</html>
